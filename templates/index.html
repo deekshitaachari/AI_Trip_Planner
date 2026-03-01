@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Trip Planner - Plan Your Dream Journey</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary: #2E6467;
+            --secondary: #00221C;
+            --accent: #A5CFE3;
+            --dark: #1e293b;
+            --light: #fff3e7;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(#2E6467, #00221C);
+            overflow-x: hidden;
+        }
+
+        .text-gradient {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary) !important;
+            border: none !important;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent) !important;
+            color: var(--dark) !important;
+        }
+
+        .btn-outline-light:hover {
+            background: var(--light) !important;
+            color: var(--dark) !important;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-section {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .feature-card {
+            border-top: 4px solid var(--primary);
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
+        .feature-card:hover {
+            border-color: var(--secondary);
+        }
+
+        .icon {
+            color: var(--secondary);
+            font-size: 2rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .footer a {
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .footer a:hover {
+            opacity: 0.7;
+        }
+
+        /* Particle BG */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* Floating Chat Button */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #2E6467, #00221C);
+            color: white;
+            padding: 18px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.2);
+            animation: bounce 1.5s infinite;
+        }
+
+        /* Bounce animation */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* Chatbot Box */
+        .chatbot-box {
+            width: 330px;
+            height: 420px;
+            background: #ffffff;
+            position: fixed;
+            bottom: 90px;
+            right: 25px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popup 0.4s ease;
+        }
+
+        /* Pop-up animation */
+        @keyframes popup {
+            from {
+                transform: scale(0.4);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chatbot-header {
+            padding: 14px;
+            background: linear-gradient(#2E6467, #00221C);
+            color: white;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #f8f8f8;
+        }
+
+        /* Messages */
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user {
+            background: #A5CFE3;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #e8e8e8;
+            color: #000;
+        }
+
+        /* Smooth Fade */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+        }
+
+        .chatbot-input-area input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+        }
+
+        .send-btn {
+            margin-left: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: #00221C;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.12);
+        }
+
+        .chatbot-box {
+            z-index: 999999 !important;
+        }
+
+        .chatbot-btn {
+            z-index: 999999 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <div class="container">
+
+            <h1 class="display-3 fw-bold text-white mb-4 animate__animated animate__fadeInDown">
+                Plan Your Perfect Trip with <span class="text-gradient">AI</span>
+            </h1>
+
+            <p class="lead text-white mb-5 animate__animated animate__fadeInUp">
+                Let AI create personalized travel itineraries in seconds. Just tell us where and when!
+            </p>
+
+            <div class="d-flex gap-3 justify-content-center flex-wrap animate__animated animate__zoomIn">
+                <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-5 py-3">
+                    Get Started
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-5 py-3">
+                    Login
+                </a>
+            </div>
+
+            <div class="mt-5 animate__animated animate__fadeInUp">
+                <p class="text-white-50">Where AI Meets Travel — Plan Smarter, Explore Better</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <div class="features-section py-5">
+        <div class="container">
+            <div class="row text-center">
+
+                <!-- Existing Feature 1 -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">🤖</div>
+                        <h5 class="fw-bold">AI-Powered Planning</h5>
+                        <p>Smart suggestions based on your budget, interests, and travel style.</p>
+                    </div>
+                </div>
+
+                <!-- Existing Feature 2 -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-2s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">🗺️</div>
+                        <h5 class="fw-bold">Interactive Maps</h5>
+                        <p>Visualize your entire trip with custom routes and hidden gems.</p>
+                    </div>
+                </div>
+
+                <!-- Existing Feature 3 -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-3s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">☀️</div>
+                        <h5 class="fw-bold">Real-time Weather</h5>
+                        <p>Pack smart with accurate forecasts and seasonal tips.</p>
+                    </div>
+                </div>
+
+                <!-- NEW FEATURE: Saves Time -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-4s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">⏱️</div>
+                        <h5 class="fw-bold">Saves Time</h5>
+                        <p>Automatically suggests full travel plans based on user inputs.</p>
+                    </div>
+                </div>
+
+                <!-- NEW FEATURE: Guidance -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-5s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">💬</div>
+                        <h5 class="fw-bold">Guidance</h5>
+                        <p>Chatbot available anytime to assist with queries and planning.</p>
+                    </div>
+                </div>
+
+                <!-- NEW FEATURE: Easy to Use -->
+                <div class="col-md-4 mb-4 animate__animated animate__fadeInUp animate__delay-6s">
+                    <div class="feature-card p-4">
+                        <div class="icon mb-3">⚡</div>
+                        <h5 class="fw-bold">Easy to Use</h5>
+                        <p>Clean UI with login system and quick navigation for easy access.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Floating Chatbot Button -->
+    <div id="chatbotBtn" class="chatbot-btn">💬</div>
+
+    <!-- Chatbot Box -->
+    <div id="chatbotBox" class="chatbot-box">
+        <div class="chatbot-header">
+            <span>AI Assistant</span>
+            <button id="closeChat" class="close-btn">×</button>
+        </div>
+
+        <div id="chatbotMessages" class="chatbot-messages"></div>
+
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Type a message...">
+            <button id="sendChatBtn" class="send-btn">➤</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <h4 class="fw-bold mb-3">AI Trip Planner</h4>
+            <p class="mb-4">Crafting perfect journeys with artificial intelligence</p>
+            <div class="d-flex justify-content-center mb-4">
+                <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+            </div>
+            <p class="mt-4 mb-0">© 2025 AI Trip Planner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80 }, "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" }, "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2 }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "repulse" },
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+    <!--chatbot script-->
+    <!--<script src="{{ url_for('static', filename='chatbot.js') }}"></script>-->
+
+    <script>
+        document.getElementById("chatbotBtn").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "flex";
+        };
+
+        document.getElementById("closeChat").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "none";
+        };
+
+        document.getElementById("sendChatBtn").onclick = sendMessage;
+        document.getElementById("chatbotInput").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            let input = document.getElementById("chatbotInput");
+            let msg = input.value.trim();
+            if (msg === "") return;
+
+            addMessage(msg, "user");
+            input.value = "";
+
+            fetch("/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    addMessage(data.reply, "bot");
+                })
+                .catch(err => {
+                    addMessage("⚠ Error connecting to server!", "bot");
+                });
+        }
+
+        function addMessage(text, sender) {
+            let box = document.getElementById("chatbotMessages");
+            let div = document.createElement("div");
+            div.className = "message " + sender;
+            div.innerText = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

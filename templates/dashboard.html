@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trip Planner | Dashboard</title>
+
+    <!-- Bootstrap + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!--chatbot link-->
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='chatbot.css') }}">-->
+
+
+    <!-- Lottie for Empty State -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <style>
+        :root {
+            --primary: #2E6467;
+            --secondary: #00221C;
+            --accent: #E06B80;
+            --dark: #1e293b;
+            --light: #fff3e7;
+            --gradient: linear-gradient(#2E6467, #00221C);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            --hover-shadow: 0 20px 50px rgba(79, 70, 229, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #dadada, #e0e7ff);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--gradient) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .navbar.scrolled {
+            padding: 0.5rem 0;
+        }
+
+        /* Hero */
+        .hero {
+            background: var(--gradient);
+            color: white;
+            padding: 6rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15'%3E%3Ccircle cx='20' cy='20' r='10'/%3E%3Ccircle cx='80' cy='80' r='15'/%3E%3Ccircle cx='80' cy='20' r='8'/%3E%3Ccircle cx='20' cy='80' r='12'/%3E%3C/g%3E%3C/svg%3E");
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Cards */
+        .trip-card {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            background: white;
+        }
+
+        .trip-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 0;
+        }
+
+        .trip-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .trip-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .trip-card img {
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .trip-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Stats */
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3.2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient);
+            border: none;
+            border-radius: 50px;
+            padding: 14px 36px;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .ai-badge {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Particles Background */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 4rem 0 3rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+
+        .ai-features {
+            background: white;
+            padding: 5rem 0;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Floating Chat Button */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #2E6467, #00221C);
+            color: white;
+            padding: 18px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0px 8px 18px rgba(0,0,0,0.2);
+            animation: bounce 1.5s infinite;
+        }
+
+        /* Bounce animation */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* Chatbot Box */
+        .chatbot-box {
+            width: 330px;
+            height: 420px;
+            background: #ffffff;
+            position: fixed;
+            bottom: 90px;
+            right: 25px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 30px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popup 0.4s ease;
+        }
+
+        /* Pop-up animation */
+        @keyframes popup {
+            from { transform: scale(0.4); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .chatbot-header {
+            padding: 14px;
+            background: linear-gradient( #2E6467, #00221C);
+            color: white;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #f8f8f8;
+        }
+
+        /* Messages */
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user {
+            background: #A5CFE3;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #e8e8e8;
+            color: #000;
+        }
+
+        /* Smooth Fade */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+        }
+
+        .chatbot-input-area input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+        }
+
+        .send-btn {
+            margin-left: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: #00221C;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.12);
+        }
+        .chatbot-box {
+            z-index: 999999 !important;
+        }
+        .chatbot-btn {
+            z-index: 999999 !important;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard') }}">
+            AI Trip Planner
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('plantrip') }}">Plan Trip</a></li>
+
+                <!-- NEW ABOUT BUTTON -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#ai-features">
+                        <i class="fas fa-info-circle me-1"></i> About
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#my-trips">
+                        <i class="fas fa-suitcase-rolling me-1"></i> My Trips
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                        data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i> {{ session['user_name'] or 'User' }}
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                <i class="fas fa-user-cog"></i> User Profile
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+    <!-- Hero -->
+    <section class="hero text-center position-relative">
+        <div class="container position-relative" style="z-index: 1;">
+            <h1 class="display-3 fw-bold" data-aos="fade-up">Welcome back, {{ session['user_name'] or 'Traveler' }}!
+            </h1>
+            <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">Let AI craft your dream journey in seconds</p>
+            <div class="ai-badge d-inline-block" data-aos="zoom-in" data-aos-delay="200">
+                <i class="fas fa-brain"></i> -AI • Live • Ultra-Fast
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5" style="position: relative; z-index: 1;">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show"
+            data-aos="fade-up">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Stats -->
+        <div class="row mb-5 g-4">
+            <div class="col-md-3" data-aos="flip-left">
+                <div class="stat-card">
+                    <div class="stat-number">{{ trips|length }}</div>
+                    <p class="mb-0 fw-bold text-muted">Trips Planned</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="100">
+                <div class="stat-card">
+                    <div class="stat-number">{{ trips|map(attribute='place')|unique|list|length }}</div>
+                    <p class="mb-0 fw-bold text-muted">Destinations</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="200">
+                <div class="stat-card">
+                    <div class="stat-number">{{ trips|sum(attribute='days')|default(0) }}</div>
+                    <p class="mb-0 fw-bold text-muted">Total Days</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="flip-left" data-aos-delay="300">
+                <div class="stat-card">
+                    <div class="stat-number">5.0</div>
+                    <p class="mb-0 fw-bold text-muted">AI Rating</p>
+                </div>
+            </div>
+        </div>
+        <!-- AI Features Section -->
+        <section class="ai-features" id="ai-features">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold">Why Choose Our AI Trip Planner?</h2>
+                    <p class="text-muted">Experience the future of travel planning with our advanced AI technology</p>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Existing Feature 1 -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4>Smart Itineraries</h4>
+                            <p class="text-muted">Our AI analyzes thousands of data points to create the perfect itinerary tailored to your preferences.</p>
+                        </div>
+                    </div>
+
+                    <!-- Existing Feature 2 -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h4>Instant Planning</h4>
+                            <p class="text-muted">Get detailed travel plans in seconds, not hours. Our AI works at lightning speed.</p>
+                        </div>
+                    </div>
+
+                    <!-- Existing Feature 3 -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h4>Personalized Experience</h4>
+                            <p class="text-muted">Every itinerary is unique, crafted specifically for your travel style and preferences.</p>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Saves Time -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h4>Saves Time</h4>
+                            <p class="text-muted">Automatically suggests full travel plans based on user preferences.</p>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Guidance -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h4>Guidance</h4>
+                            <p class="text-muted">Chatbot available anytime to assist with queries and planning.</p>
+                        </div>
+                    </div>
+
+                    <!-- NEW FEATURE: Easy to Use -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                            <h4>Easy To Use</h4>
+                            <p class="text-muted">Clean UI with login system, smooth navigation and simple controls.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Quick Action -->
+        <div class="text-center mb-5" data-aos="zoom-in" style="padding-top: 4rem;">
+            <a href="{{ url_for('plantrip') }}" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-magic"></i> Plan New Trip
+            </a>
+        </div>
+
+
+        <!-- Your Trips -->
+        <h2 id="my-trips" class="mb-4 text-center" data-aos="fade-up">Your AI-Crafted Journeys</h2>
+        {% if trips %}
+        <div class="row g-4">
+            {% for trip in trips %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                <div class="trip-card h-100">
+                    <img src="{{ trip.image_url }}" class="card-img-top" alt="{{ trip.place }}"
+                        onerror="this.src='https://placehold.co/800x600?text=No+Image'">
+                    <div class="card-body d-flex flex-column p-4">
+                        <h5 class="card-title fw-bold text-primary">{{ trip.place }}</h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ trip.description }}</p>
+                        <div class="mt-3">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-calendar"></i> {{ trip.days }} days •
+                                <i class="fas fa-users"></i> {{ trip.adults }} adults
+                                {% if trip.children > 0 %} + {{ trip.children }} kids{% endif %}
+                                <br>
+                                <i class="fas fa-clock"></i> {{ trip.date_created.strftime('%b %d, %Y') }}
+                            </small>
+                            <a href="{{ url_for('view_itinerary', trip_id=trip.id) }}"
+                                class="btn btn-primary w-100 mt-3 btn-sm">
+                                <i class="fas fa-eye"></i> View Itinerary
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" data-aos="fade-up">
+            <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_jcikwtux.json" background="transparent"
+                speed="1" style="width: 300px; height: 300px; margin: 0 auto;" loop autoplay></lottie-player>
+            <h3 class="mt-4">No trips planned yet!</h3>
+            <p class="text-muted mb-4">Let AI create your first adventure</p>
+            <a href="{{ url_for('plantrip') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plane-departure"></i> Plan Your First Trip
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="text-center my-5 py-5">
+            <p class="text-muted small">
+                <i class="fas fa-heart text-danger"></i> Powered by AI • Built in India
+            </p>
+        </div>
+    </div>
+
+    <!-- Floating Chatbot Button -->
+    <div id="chatbotBtn" class="chatbot-btn">💬</div>
+
+    <!-- Chatbot Box -->
+    <div id="chatbotBox" class="chatbot-box">
+        <div class="chatbot-header">
+            <span>AI Assistant</span>
+            <button id="closeChat" class="close-btn">×</button>
+        </div>
+
+        <div id="chatbotMessages" class="chatbot-messages"></div>
+
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Type a message...">
+            <button id="sendChatBtn" class="send-btn">➤</button>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init({ duration: 800, once: true });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Particles.js
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#4f46e5" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.3, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#06d6a0", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out" }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } },
+                "modes": { "repulse": { "distance": 100, "duration": 0.4 }, "push": { "particles_nb": 4 } }
+            },
+            "retina_detect": true
+        });
+    </script>
+    
+    <!--chatbot script-->
+    <!--<script src="{{ url_for('static', filename='chatbot.js') }}"></script>-->
+
+    <script>
+        document.getElementById("chatbotBtn").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "flex";
+        };
+
+        document.getElementById("closeChat").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "none";
+        };
+
+        document.getElementById("sendChatBtn").onclick = sendMessage;
+        document.getElementById("chatbotInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            let input = document.getElementById("chatbotInput");
+            let msg = input.value.trim();
+            if (msg === "") return;
+
+            addMessage(msg, "user");
+            input.value = "";
+
+            fetch("/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                addMessage(data.reply, "bot");
+            })
+            .catch(err => {
+                addMessage("⚠ Error connecting to server!", "bot");
+            });
+        }
+
+        function addMessage(text, sender) {
+            let box = document.getElementById("chatbotMessages");
+            let div = document.createElement("div");
+            div.className = "message " + sender;
+            div.innerText = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+
+</body>
+
+</html>

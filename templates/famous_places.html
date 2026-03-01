@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trip Planner | Famous Places</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #06d6a0;
+            --accent: #ff6b6b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gradient: linear-gradient(135deg, #4f46e5, #06d6a0);
+            --gradient-dark: linear-gradient(135deg, #4338ca, #059669);
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
+
+        body {
+            background: linear-gradient(to bottom, #f0f4ff, #e0e7ff);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: var(--gradient) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 1rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            margin-right: 8px;
+            font-size: 1.8rem;
+        }
+
+        /* Hero Section */
+        .hero-places {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80') center/cover no-repeat;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            border-radius: 0 0 50px 50px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .hero-places::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient);
+            opacity: 0.3;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 15px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        /* Floating AI Badge */
+        .ai-floating-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+            animation: float 4s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        /* State Cards with Parallax */
+        .state-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .state-card:hover {
+            transform: translateY(-20px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(79, 70, 229, 0.3);
+        }
+
+        .state-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gradient);
+        }
+
+        .state-img {
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .state-card:hover .state-img {
+            transform: scale(1.15);
+        }
+
+        .place-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            height: 100%;
+        }
+
+        .place-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.25);
+        }
+
+        .place-image {
+            height: 220px;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .place-card:hover .place-image {
+            transform: scale(1.1);
+        }
+
+        .ai-badge-place {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(79, 70, 229, 0.9);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+
+        .rating-stars {
+            color: #fbbf24;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Magic Gradient Button */
+        .btn-magic {
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background-size: 300% 300%;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: gradient 8s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .btn-magic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.7s;
+        }
+
+        .btn-magic:hover::before {
+            left: 100%;
+        }
+
+        /* Additional styles for expanded sections */
+        .state-section {
+            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            padding: 4rem 0;
+            border-radius: 20px;
+            margin-bottom: 4rem;
+        }
+
+        .state-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .state-header h2 {
+            font-size: 3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .state-header p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .ai-chat-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- AI Chat Bubble -->
+    <div class="ai-chat-bubble">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot"></i> AI Trip Planner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-map-marked-alt me-1"></i>
+                            Places</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-suitcase me-1"></i> My Trips</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Welcome, User!
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>
+                                    Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-places">
+        <div class="ai-floating-badge">
+            <i class="fas fa-brain"></i> AI Curated • 127 Places
+        </div>
+        <div class="container position-relative z-3">
+            <div class="text-center text-white">
+                <h1 class="hero-title">Discover India's Wonders</h1>
+                <p class="hero-subtitle">AI-powered recommendations for your dream destinations</p>
+
+                <div class="search-bar mx-auto mt-4" style="max-width: 600px;">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-0"
+                            placeholder="Search for places, cities, or experiences..." style="height: 55px;">
+                        <button class="btn btn-primary px-4">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- Featured States -->
+        <div class="row g-5 mb-5">
+            <!-- Rajasthan -->
+            <div class="col-lg-4">
+                <div class="state-card animate-on-scroll">
+                    <img src="{{ url_for('static', filename='images/rajasthan.avif') }}" class="place-image w-100"
+                        alt="rajasthan">
+                    <div class="p-4">
+                        <h3 class="mb-3">Rajasthan</h3>
+                        <p class="text-muted">Land of Kings • 28 Iconic Places</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-fire text-danger"></i> Trending Now</span>
+                            <a href="#rajasthan" class="btn btn-outline-primary btn-sm">Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kerala -->
+            <div class="col-lg-4">
+                <div class="state-card animate-on-scroll">
+                    <img src="{{ url_for('static', filename='images/kerala-backwaters.avif') }}"
+                        class="place-image w-100" alt="Alleppey">
+                    <div class="p-4">
+                        <h3 class="mb-3">Kerala</h3>
+                        <p class="text-muted">God's Own Country • 22 Places</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-heart text-success"></i> 98% Love it</span>
+                            <a href="#kerala" class="btn btn-outline-primary btn-sm">Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Himachal -->
+            <div class="col-lg-4">
+                <div class="state-card animate-on-scroll">
+                    <img src="{{ url_for('static', filename='images/himachal-pradesh.avif') }}"
+                        class="place-image w-100" alt="Himachal Pradesh">
+                    <div class="p-4">
+                        <h3 class="mb-3">Himachal Pradesh</h3>
+                        <p class="text-muted">Mountains & Adventure • 19 Places</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-snowflake text-info"></i> Winter Special</span>
+                            <a href="#himachal" class="btn btn-outline-primary btn-sm">Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goa -->
+            <div class="col-lg-4">
+                <div class="state-card animate-on-scroll">
+                    <img src="{{ url_for('static', filename='images/goa-beach.avif') }}" class="place-image w-100"
+                        alt="Goa">
+                    <div class="p-4">
+                        <h3 class="mb-3">Goa</h3>
+                        <p class="text-muted">Beaches & Parties • 15 Places</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-cocktail text-warning"></i> Party Paradise</span>
+                            <a href="#goa" class="btn btn-outline-primary btn-sm">Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ladakh -->
+            <div class="col-lg-4">
+                <div class="state-card animate-on-scroll">
+                    <img src="{{ url_for('static', filename='images/ladakh-pangong.avif') }}" class="place-image w-100"
+                        alt="Pangong Lake">
+                    <div class="p-4">
+                        <h3 class="mb-3">Ladakh</h3>
+                        <p class="text-muted">High Passes • 12 Places</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-mountain text-secondary"></i> Adventure Zone</span>
+                            <a href="#ladakh" class="btn btn-outline-primary btn-sm">Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rajasthan Section -->
+        <section id="rajasthan" class="state-section">
+            <div class="state-header">
+                <h2>Rajasthan - The Royal Legacy</h2>
+                <p>Palaces, forts, and desert magic await in the land of warriors and kings</p>
+            </div>
+            <div class="row g-4">
+                <!-- Hawa Mahal -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/hawamahal.webp') }}"
+                                class="place-image w-100" alt="Alleppey">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-crown"></i> Royal Pick
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Hawa Mahal</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Jaipur</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <small class="text-muted">4.8 (2.3k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mehrangarh Fort -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/mehrangarh-fort.avif') }}"
+                                class="place-image w-100" alt="mehrangarh-fort">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-shield-alt"></i> Historic Gem
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Mehrangarh Fort</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Jodhpur</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <small class="text-muted">4.9 (8.7k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- City Palace Udaipur -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/city-palace-udaipur.avif') }}"
+                                class="place-image w-100" alt="City Palace Udaipur">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-water"></i> Lakeside Beauty
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>City Palace</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Udaipur</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <small class="text-muted">4.7 (5.1k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jaisalmer Fort -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/jaisalmer-fort.avif') }}"
+                                class="place-image w-100" alt="Jaisalmer Fort">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-desert"></i> Desert Fortress
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Jaisalmer Fort</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Jaisalmer</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <small class="text-muted">4.6 (4.2k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kerala Section -->
+        <section id="kerala" class="state-section">
+            <div class="state-header">
+                <h2>Kerala - God's Own Country</h2>
+                <p>Backwaters, beaches, and spice plantations in a tropical paradise</p>
+            </div>
+            <div class="row g-4">
+                <!-- Munnar Tea Gardens -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/munnar-tea.avif') }}"
+                                class="place-image w-100" alt="Munnar Tea Gardens">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-leaf"></i> Green Escape
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Munnar Tea Gardens</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Munnar</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <small class="text-muted">4.9 (3.4k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alleppey Backwaters -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/alleppey-backwaters.avif') }}"
+                                class="place-image w-100" alt="Alleppey">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-ship"></i> Cruise Heaven
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Alleppey Backwaters</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Alleppey</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <small class="text-muted">4.7 (2.5k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kovalam Beach -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/kovalam-beach.avif') }}"
+                                class="place-image w-100" alt="Kovalam Beach">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-umbrella-beach"></i> Sunset Spot
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Kovalam Beach</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Kovalam</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <small class="text-muted">4.6 (1.8k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Periyar National Park -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="place-card animate-on-scroll">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='images/periyar-wildlife.avif') }}"
+                                class="place-image w-100" alt="Periyar National Park">
+                            <div class="ai-badge-place">
+                                <i class="fas fa-tree"></i> Wildlife Safari
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h5>Periyar National Park</h5>
+                            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Thekkady</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <small class="text-muted">4.5 (1.2k)</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100">Plan Visit <i
+                                    class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <div class="text-center py-5 my-5">
+            <h2>Ready for Your Next Adventure?</h2>
+            <p class="lead text-muted mb-4">Let AI build your perfect itinerary in seconds</p>
+            <a href="#" class="btn-magic me-3"><i class="fas fa-map-marked-alt me-2"></i> Explore More</a>
+            <a href="{{ url_for('plantrip') }}" class="btn btn-primary px-4 py-3"><i class="fas fa-magic me-2"></i> Plan Custom Trip</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5><i class="fas fa-robot me-2"></i> AI Trip Planner</h5>
+                    <p class="mt-3">The smart way to plan your travels with artificial intelligence.</p>
+                    <div class="footer-links mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light text-decoration-none">Home</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Destinations</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">My Trips</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light text-decoration-none">Help Center</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Contact Us</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Privacy Policy</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <p class="text-center mb-0">© 2025 AI Trip Planner • Made with ❤️ in India</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for explore links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

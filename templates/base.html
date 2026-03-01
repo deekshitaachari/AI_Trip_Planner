@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}My Flask App{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Floating Chatbot Styles -->
+  <style>
+    :root{
+      --accent: #2563eb;
+      --bg: #0f172a;
+      --bubble: #e6eefc;
+      --me: #d1fae5;
+      --text: #0b1220;
+      --muted: #9aa6bb;
+      --glass: rgba(255,255,255,0.04);
+    }
+    .chat-toggle{
+      position: fixed; right: 20px; bottom: 20px;
+      width: 62px; height: 62px; border-radius: 999px;
+      display: grid; place-items: center;
+      background: linear-gradient(180deg,#60a5fa,#2563eb);
+      box-shadow: 0 8px 30px rgba(37,99,235,0.25);
+      cursor: pointer; z-index: 10000;
+    }
+    .chat-toggle .dot{width:28px;height:28px;border-radius:6px;background:white;}
+    .chat-window{
+      position: fixed; right: 20px; bottom: 100px;
+      width: 340px; max-height: 68vh;
+      border-radius: 12px; overflow: hidden;
+      background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      display: none; z-index: 10000; color:white;
+      font-family: Inter, system-ui;
+    }
+    .chat-header{padding:12px 14px;display:flex;align-items:center;gap:10px;background:rgba(37,99,235,0.12);}
+    .chat-header .title{font-weight:600;font-size:14px}
+    .chat-header .subtitle{font-size:12px;color:var(--muted)}
+    .chat-body{padding:12px;height:calc(68vh - 130px);overflow:auto;display:flex;flex-direction:column;gap:10px;}
+    .msg{max-width:80%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.3;word-wrap:break-word;}
+    .msg.bot{background:var(--bubble);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+    .msg.me{background:var(--me);color:var(--text);align-self:flex-end;border-bottom-right-radius:4px}
+    .typing span{position:absolute;top:0;width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.15);animation:blink 1s infinite}
+    @keyframes blink{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}
+    .chat-footer{padding:8px;display:flex;gap:8px;background:var(--glass)}
+    .chat-input{flex:1;padding:10px;border-radius:10px;background:transparent;color:white;border:1px solid rgba(255,255,255,0.04);}
+    .send-btn{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">My Flask App</a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    {% block content %}{% endblock %}
+  </div>
+
+
+  <!-- Floating Chat Button -->
+  <button class="chat-toggle" id="chatToggle"><span class="dot"></span></button>
+
+  <!-- Chat Window -->
+  <section class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div>
+        <div class="title">Local Chatbot</div>
+        <div class="subtitle">Engine 1 — Lightweight</div>
+      </div>
+      <button id="closeChat" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer">✕</button>
+    </div>
+
+    <div class="chat-body" id="chatBody"></div>
+
+    <div class="chat-footer">
+      <input id="chatInput" class="chat-input" placeholder="Type a message..." />
+      <button id="sendBtn" class="send-btn">Send</button>
+    </div>
+  </section>
+
+  <!-- Chatbot Script -->
+  <script>
+    const chatToggle=document.getElementById('chatToggle');
+    const chatWindow=document.getElementById('chatWindow');
+    const closeChat=document.getElementById('closeChat');
+    const chatBody=document.getElementById('chatBody');
+    const chatInput=document.getElementById('chatInput');
+    const sendBtn=document.getElementById('sendBtn');
+
+    chatToggle.onclick=()=>{chatWindow.style.display='block'};
+    closeChat.onclick=()=>{chatWindow.style.display='none'};
+
+    function appendMessage(text,who='bot'){
+      const el=document.createElement('div');
+      el.className='msg '+(who==='me'?'me':'bot');
+      el.textContent=text;
+      chatBody.appendChild(el);
+      chatBody.scrollTop=chatBody.scrollHeight;
+    }
+
+    async function sendMessage(msg){
+      appendMessage(msg,'me'); chatInput.value='';
+      const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({engine:'engine1',message:msg})});
+      const data=await res.json();
+      appendMessage(data.reply,'bot');
+    }
+
+    sendBtn.onclick=()=>{if(chatInput.value.trim()) sendMessage(chatInput.value)};
+    chatInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();sendMessage(chatInput.value)}};
+
+    appendMessage("Hi — I'm a local lightweight bot. Ask me anything!",'bot');
+  </script>
+
+</body>
+</html>

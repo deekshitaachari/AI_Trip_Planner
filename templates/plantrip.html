@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trip Planner | Plan Your Perfect Journey</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E6467;
+            --primary-light: #00221C;
+            --secondary: #6e0e91ff;
+            --secondary-light: #34d399;
+            --accent: #ff6b6b;
+            --accent-light: #ff8787;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --gradient: linear-gradient(#2E6467, #00221C);
+            --gradient-light: linear-gradient(135deg, #6366f1, #34d399);
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow: 0 10px 25px rgba(65, 29, 29, 0.1);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #eef2ff, #e0e7ff, #dbeafe);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: var(--gradient) !important;
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+        }
+
+        .hero {
+            background: var(--gradient);
+            color: white;
+            padding: 5rem 0 3rem;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='20' cy='20' r='10'/%3E%3Ccircle cx='80' cy='80' r='15'/%3E%3Ccircle cx='80' cy='20' r='8'/%3E%3Ccircle cx='20' cy='80' r='12'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ai-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            max-width: 900px;
+            margin: -80px auto 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-header {
+            background: var(--gradient);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+
+        .form-body {
+            padding: 3rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 15px;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            z-index: 5;
+        }
+
+        .input-icon .form-control,
+        .input-icon .form-select {
+            padding-left: 50px;
+        }
+
+        .btn-plan {
+            background: var(--gradient);
+            border: none;
+            border-radius: 50px;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-plan:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+            background: var(--gradient-light);
+        }
+
+        .btn-plan:disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .popular-destinations {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dest-tag {
+            background: var(--gradient);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .dest-tag:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: floatAround 15s infinite linear;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(20px, 40px) rotate(90deg);
+            }
+
+            50% {
+                transform: translate(40px, 0) rotate(180deg);
+            }
+
+            75% {
+                transform: translate(20px, -40px) rotate(270deg);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 5rem;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* NEW: Famous Places Cards */
+        .place-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .place-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.25);
+        }
+
+        .place-card img {
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .place-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .place-card .card-body {
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .place-card h5 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .place-card p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 3rem 0 2rem;
+            }
+
+            .form-container {
+                margin-top: -50px;
+            }
+
+            .form-body {
+                padding: 2rem;
+            }
+
+            .place-card img {
+                height: 160px;
+            }
+        }
+
+        /* Floating Chat Button */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(#2E6467, #00221C);
+            color: white;
+            padding: 18px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.2);
+            animation: bounce 1.5s infinite;
+        }
+
+        /* Bounce animation */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* Chatbot Box */
+        .chatbot-box {
+            width: 330px;
+            height: 420px;
+            background: #ffffff;
+            position: fixed;
+            bottom: 90px;
+            right: 25px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popup 0.4s ease;
+        }
+
+        /* Pop-up animation */
+        @keyframes popup {
+            from {
+                transform: scale(0.4);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chatbot-header {
+            padding: 14px;
+            background: linear-gradient(#2E6467, #00221C);
+            color: white;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #f8f8f8;
+        }
+
+        /* Messages */
+        .message {
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user {
+            background: #A5CFE3;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #e8e8e8;
+            color: #000;
+        }
+
+        /* Smooth Fade */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+        }
+
+        .chatbot-input-area input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+        }
+
+        .send-btn {
+            margin-left: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: #00221C;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+
+        .send-btn:hover {
+            transform: scale(1.12);
+        }
+
+        .chatbot-btn {
+            z-index: 9999;
+        }
+
+        .chatbot-box {
+            z-index: 9999;
+        }
+
+        .flash-container {
+            position: relative;
+            z-index: 9999 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-route me-2"></i>
+                AI Trip Planner
+            </a>
+            <div class="ms-auto">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="floating-elements">
+            <div class="floating-element" style="width: 80px; height: 80px; top: 10%; left: 5%;"></div>
+            <div class="floating-element" style="width: 60px; height: 60px; top: 20%; right: 10%;"></div>
+            <div class="floating-element" style="width: 100px; height: 100px; bottom: 20%; left: 15%;"></div>
+            <div class="floating-element" style="width: 70px; height: 70px; bottom: 10%; right: 5%;"></div>
+        </div>
+
+        <div class="container position-relative hero-content">
+            <div class="text-center">
+                <div class="ai-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3 glow-text">Your AI Travel Assistant</h1>
+                <p class="lead fs-5 mb-4">Tell us your dream destination and our advanced AI will craft your perfect
+                    itinerary in seconds</p>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="pulse rounded-circle bg-light mx-2" style="width: 12px; height: 12px;"></div>
+                    <div class="pulse rounded-circle bg-light mx-2"
+                        style="width: 12px; height: 12px; animation-delay: 0.5s;"></div>
+                    <div class="pulse rounded-circle bg-light mx-2"
+                        style="width: 12px; height: 12px; animation-delay: 1s;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+
+        <!-- Form -->
+        <div class="form-container">
+            <div class="form-header">
+                <h2 class="fw-bold">Plan Your Perfect Trip</h2>
+                <p class="mb-0">AI will create a detailed itinerary personalized just for you</p>
+            </div>
+
+            <div class="form-body">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div
+                    class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show">
+                    <i class="fas fa-{{ 'check-circle' if category=='success' else 'exclamation-triangle' }} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('plantrip') }}" id="tripForm">
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Destination</label>
+                            <div class="input-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" name="place" class="form-control form-control-lg"
+                                    placeholder="e.g. Goa, Manali, Kerala, Jaipur..." required
+                                    value="{{ request.form.place|default('') }}">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Number of Days</label>
+                            <div class="input-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                                <select name="days" class="form-select form-select-lg" required>
+                                    <option value="1" {% if request.form.days=='1' %}selected{% endif %}>1 Days</option>
+                                    <option value="2" {% if request.form.days=='2' %}selected{% endif %}>2 Days</option>
+                                    <option value="3" {% if request.form.days=='3' %}selected{% endif %}>3 Days</option>
+                                    <option value="4" {% if request.form.days=='4' %}selected{% endif %}>4 Days</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Travel Date</label>
+                            <div class="input-icon">
+                                <i class="fas fa-plane-departure"></i>
+                                <input type="date" name="travel_date" class="form-control form-control-lg"
+                                    id="travelDate">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Adults</label>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                                <select name="adults" class="form-select form-select-lg" required>
+                                    {% for i in range(1, 11) %}
+                                    <option value="{{ i }}" {% if (request.form.adults|string)==i|string %}selected{%
+                                        endif %}>
+                                        {{ i }} Adult{{ 's' if i > 1 else '' }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Children (0-12 yrs)</label>
+                            <div class="input-icon">
+                                <i class="fas fa-child"></i>
+                                <select name="children" class="form-select form-select-lg">
+                                    {% for i in range(0, 6) %}
+                                    <option value="{{ i }}" {% if (request.form.children|string)==i|string %}selected{%
+                                        endif %}>
+                                        {{ i }} Children
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-plan" id="planBtn">
+                                <span id="btnText">
+                                    <i class="fas fa-magic me-2"></i>Generate My AI Trip Plan
+                                </span>
+                                <span id="loadingText" style="display:none;">
+                                    <span class="ai-loader"></span> AI is crafting your perfect itinerary...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Popular Destinations -->
+                <div class="popular-destinations text-center">
+                    <p class="fw-bold mb-3 fs-5">Popular Destinations:</p>
+                    <div>
+                        <span class="dest-tag" onclick="fillPlace('Goa')">Goa</span>
+                        <span class="dest-tag" onclick="fillPlace('Manali')">Manali</span>
+                        <span class="dest-tag" onclick="fillPlace('Kerala')">Kerala</span>
+                        <span class="dest-tag" onclick="fillPlace('Jaipur')">Jaipur</span>
+                        <span class="dest-tag" onclick="fillPlace('Ladakh')">Ladakh</span>
+                        <span class="dest-tag" onclick="fillPlace('Rishikesh')">Rishikesh</span>
+                        <span class="dest-tag" onclick="fillPlace('Andaman')">Andaman</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Famous Places Section 
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Explore Famous Destinations</h2>
+                <p class="text-muted">Click any destination to auto-fill and start planning instantly!</p>
+            </div>
+
+            <div class="row g-4">-->
+    <!-- Goa 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Goa')">
+                        <img src="https://source.unsplash.com/600x400/?goa,beach" class="card-img-top" alt="Goa">
+                        <div class="card-body">
+                            <h5>Goa</h5>
+                            <p>Beaches • Nightlife • Portuguese Vibes</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Manali 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Manali')">
+                        <img src="https://source.unsplash.com/600x400/?manali,snow" class="card-img-top" alt="Manali">
+                        <div class="card-body">
+                            <h5>Manali</h5>
+                            <p>Snow • Adventure • Rohtang Pass</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Kerala 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Kerala')">
+                        <img src="https://source.unsplash.com/600x400/?kerala,backwaters" class="card-img-top"
+                            alt="Kerala">
+                        <div class="card-body">
+                            <h5>Kerala</h5>
+                            <p>Backwaters • Tea Gardens • Ayurveda</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Jaipur
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Jaipur')">
+                        <img src="https://source.unsplash.com/600x400/?jaipur,palace" class="card-img-top" alt="Jaipur">
+                        <div class="card-body">
+                            <h5>Jaipur</h5>
+                            <p>Pink City • Palaces • Culture</p>
+                        </div>
+                    </div>
+                </div>
+ -->
+    <!-- Ladakh 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Ladakh')">
+                        <img src="https://source.unsplash.com/600x400/?ladakh,mountains" class="card-img-top"
+                            alt="Ladakh">
+                        <div class="card-body">
+                            <h5>Ladakh</h5>
+                            <p>High Passes • Monasteries • Adventure</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Rishikesh 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Rishikesh')">
+                        <img src="https://source.unsplash.com/600x400/?rishikesh,yoga" class="card-img-top"
+                            alt="Rishikesh">
+                        <div class="card-body">
+                            <h5>Rishikesh</h5>
+                            <p>Yoga Capital • Ganga • Rafting</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Andaman 
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Andaman')">
+                        <img src="https://source.unsplash.com/600x400/?andaman,islands" class="card-img-top"
+                            alt="Andaman">
+                        <div class="card-body">
+                            <h5>Andaman</h5>
+                            <p>Crystal Waters • Coral Reefs • Serenity</p>
+                        </div>
+                    </div>
+                </div>
+-->
+    <!-- Udaipur
+                <div class="col-md-4 col-lg-3">
+                    <div class="card place-card" onclick="fillPlace('Udaipur')">
+                        <img src="https://source.unsplash.com/600x400/?udaipur,lake" class="card-img-top" alt="Udaipur">
+                        <div class="card-body">
+                            <h5>Udaipur</h5>
+                            <p>City of Lakes • Palaces • Romance</p>
+                        </div>
+                    </div>
+                </div> 
+    </div>
+    </div>
+    </section>
+-->
+
+    <!-- Floating Chatbot Button -->
+    <div id="chatbotBtn" class="chatbot-btn">💬</div>
+
+    <!-- Chatbot Box -->
+    <div id="chatbotBox" class="chatbot-box">
+        <div class="chatbot-header">
+            <span>AI Assistant</span>
+            <button id="closeChat" class="close-btn">×</button>
+        </div>
+
+        <div id="chatbotMessages" class="chatbot-messages"></div>
+
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Type a message...">
+            <button id="sendChatBtn" class="send-btn">➤</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <h4 class="fw-bold mb-3">AI Trip Planner</h4>
+            <p class="mb-4">Crafting perfect journeys with artificial intelligence</p>
+            <div class="d-flex justify-content-center">
+                <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+            </div>
+            <p class="mt-4 mb-0">© 2025 AI Trip Planner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set tomorrow's date
+        document.addEventListener('DOMContentLoaded', function () {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dateString = tomorrow.toISOString().split('T')[0];
+            document.getElementById('travelDate').value = dateString;
+            document.getElementById('travelDate').min = dateString;
+        });
+
+        // Fill destination
+        function fillPlace(place) {
+            const input = document.querySelector('input[name="place"]');
+            input.value = place;
+            input.focus();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Show loading
+        document.getElementById('tripForm').addEventListener('submit', function () {
+            document.getElementById('btnText').style.display = 'none';
+            document.getElementById('loadingText').style.display = 'inline';
+            document.getElementById('planBtn').disabled = true;
+        });
+
+        // Create floating elements
+        document.addEventListener('DOMContentLoaded', function () {
+            const floatingContainer = document.querySelector('.floating-elements');
+            const colors = ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.15)', 'rgba(255,255,255,0.2)'];
+
+            for (let i = 0; i < 8; i++) {
+                const element = document.createElement('div');
+                element.classList.add('floating-element');
+
+                const size = Math.random() * 60 + 40;
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const animationDuration = Math.random() * 20 + 15;
+                const animationDelay = Math.random() * 5;
+
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.top = `${top}%`;
+                element.style.left = `${left}%`;
+                element.style.background = color;
+                element.style.animationDuration = `${animationDuration}s`;
+                element.style.animationDelay = `${animationDelay}s`;
+
+                floatingContainer.appendChild(element);
+            }
+        });
+    </script>
+
+    <!--chatbot script-->
+    <script>
+        document.getElementById("chatbotBtn").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "flex";
+        };
+
+        document.getElementById("closeChat").onclick = () => {
+            document.getElementById("chatbotBox").style.display = "none";
+        };
+
+        document.getElementById("sendChatBtn").onclick = sendMessage;
+        document.getElementById("chatbotInput").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            let input = document.getElementById("chatbotInput");
+            let msg = input.value.trim();
+            if (msg === "") return;
+
+            addMessage(msg, "user");
+            input.value = "";
+
+            fetch("/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    addMessage(data.reply, "bot");
+                })
+                .catch(err => {
+                    addMessage("⚠ Error connecting to server!", "bot");
+                });
+        }
+
+        function addMessage(text, sender) {
+            let box = document.getElementById("chatbotMessages");
+            let div = document.createElement("div");
+            div.className = "message " + sender;
+            div.innerText = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Trip History - AI Trip Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #06d6a0;
+            --accent: #ff6b6b;
+            --gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --gradient-primary: linear-gradient(135deg, #4f46e5, #06d6a0);
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(to bottom, #f0f4ff, #e0e7ff); 
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .navbar {
+            background: var(--gradient-primary) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 5rem 0;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 3rem;
+        }
+
+        .trip-card { 
+            background: white; 
+            border-radius: 25px; 
+            overflow: hidden; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12); 
+            margin-bottom: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            height: 100%;
+        }
+
+        .trip-card:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 25px 80px rgba(79,70,229,0.3); 
+        }
+
+        .trip-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--gradient-primary);
+        }
+
+        .trip-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .trip-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 1rem;
+        }
+
+        .trip-content {
+            padding: 1.5rem;
+        }
+
+        .trip-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .trip-meta-item {
+            display: flex;
+            align-items: center;
+            color: #64748b;
+        }
+
+        .trip-meta-item i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        .trip-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .trip-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79,70,229,0.3);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-destination {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ai-badge { 
+            background: rgba(79,70,229,0.9); 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 50px; 
+            font-size: 0.9rem; 
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-animation {
+            animation: cardSlide 0.6s ease-out;
+        }
+
+        @keyframes cardSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-robot me-2"></i> AI Trip Planner
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/plantrip"><i class="fas fa-plus me-1"></i> Plan Trip</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/history"><i class="fas fa-history me-1"></i> My Trips</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section mt-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">My Travel Memories</h1>
+            <p class="lead mb-4">Relive your AI-generated travel experiences</p>
+            <span class="ai-badge"><i class="fas fa-history me-1"></i> {{ trips|length }} Trips Generated</span>
+        </div>
+    </div>
+
+    <div class="container">
+        {% if trips %}
+            <div class="row">
+                {% for trip in trips %}
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="trip-card card-animation" style="animation-delay: {{ loop.index * 0.1 }}s">
+                        <!-- Dynamic background image based on destination -->
+                        <div class="trip-image" style="background-image: url('{{ get_trip_image(trip.place) }}')">
+                            <div class="trip-overlay">
+                                <span class="badge-destination">{{ trip.place }}</span>
+                                <h5 class="mb-0 mt-1">{{ get_trip_title(trip.place) }}</h5>
+                            </div>
+                        </div>
+                        <div class="trip-content">
+                            <div class="trip-meta">
+                                <div class="trip-meta-item">
+                                    <i class="fas fa-calendar"></i> {{ trip.days }} Days
+                                </div>
+                                <div class="trip-meta-item">
+                                    <i class="fas fa-users"></i> {{ trip.adults }} Adults{% if trip.children > 0 %}, {{ trip.children }} Children{% endif %}
+                                </div>
+                                <div class="trip-meta-item">
+                                    <i class="fas fa-clock"></i> {{ trip.date_created.strftime("%b %d, %Y") }}
+                                </div>
+                            </div>
+                            <p class="trip-description">{{ get_trip_description(trip.place) }}</p>
+                            <div class="trip-actions">
+                                <a href="{{ url_for('itinerary', trip_id=trip.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-download me-1"></i> PDF
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-share-alt me-1"></i> Share
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state fade-in">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>No Travel Memories Yet</h3>
+                <p class="mb-4">You haven't created any trip itineraries yet. Start planning your first adventure!</p>
+                <div class="action-buttons">
+                    <a href="/plantrip" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i> Plan Your First Trip
+                    </a>
+                    <a href="/dashboard" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-home me-2"></i> Return to Home
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Action Buttons (shown when trips exist) -->
+        {% if trips %}
+        <div class="action-buttons fade-in">
+            <a href="/plantrip" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i> Plan New Trip
+            </a>
+            <a href="/dashboard" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-home me-2"></i> Return to Home
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effect to trip cards
+            const tripCards = document.querySelectorAll('.trip-card');
+            
+            tripCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
